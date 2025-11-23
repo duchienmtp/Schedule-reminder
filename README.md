@@ -4,7 +4,7 @@
 Ứng dụng trợ lý lịch trình cá nhân với giao diện đồ họa, hỗ trợ xử lý ngôn ngữ tự nhiên tiếng Việt để thêm, quản lý và nhắc nhở các sự kiện.
 
 ## Yêu cầu hệ thống
-- Python 3.7 trở lên
+- Python 3.13.1
 - Windows/macOS/Linux
 - Kết nối internet (để cài đặt thư viện)
 
