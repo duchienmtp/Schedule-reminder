@@ -16,7 +16,7 @@
 git clone <repository-url>
 cd DACN
 
-# Hoặc giải nén file zip vào thư mục DACN
+# Hoặc giải nén file zip vào thư mục DACN (hoặc thư mục bất kỳ)
 ```
 
 ### 2. Tạo môi trường ảo (khuyến nghị)

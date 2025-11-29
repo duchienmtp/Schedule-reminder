@@ -14,6 +14,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         event TEXT NOT NULL,
         start_time TEXT NOT NULL,
+        end_time TEXT,
         location TEXT,
         reminder_minutes INTEGER,
         reminded INTEGER DEFAULT 0 
@@ -27,11 +28,12 @@ def add_event(event_data: dict):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-    INSERT INTO events (event, start_time, location, reminder_minutes)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO events (event, start_time, end_time, location, reminder_minutes)
+    VALUES (?, ?, ?, ?, ?)
     """, (
         event_data.get('event'),
         event_data.get('start_time'),
+        event_data.get('end_time'),
         event_data.get('location'),
         event_data.get('reminder_minutes')
     ))
@@ -62,11 +64,12 @@ def update_event(event_id: int, event_data: dict):
     cursor = conn.cursor()
     cursor.execute("""
     UPDATE events 
-    SET event = ?, start_time = ?, location = ?, reminder_minutes = ?, reminded = 0
+    SET event = ?, start_time = ?, end_time = ?, location = ?, reminder_minutes = ?, reminded = 0
     WHERE id = ?
     """, (
         event_data.get('event'),
         event_data.get('start_time'),
+        event_data.get('end_time'),
         event_data.get('location'),
         event_data.get('reminder_minutes'),
         event_id
@@ -89,7 +92,6 @@ def get_events_to_remind():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
-    # Logic sửa: so sánh đúng thời gian nhắc nhở với cùng timezone
     cursor.execute("""
         SELECT * FROM events
         WHERE reminded = 0
