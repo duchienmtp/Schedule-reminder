@@ -14,9 +14,9 @@
 ```bash
 # Nếu sử dụng Git
 git clone <repository-url>
-cd DACN
+cd Schedule-reminder
 
-# Hoặc giải nén file zip vào thư mục DACN (hoặc thư mục bất kỳ)
+# Hoặc giải nén file zip vào thư mục Schedule-reminder (hoặc thư mục bất kỳ)
 ```
 
 ### 2. Tạo môi trường ảo (khuyến nghị)
