@@ -72,7 +72,7 @@ DACN/
 ├── database.py         # Quản lý database SQLite
 ├── nlp_pipeline.py     # Xử lý ngôn ngữ tự nhiên tiếng Việt
 ├── requirements.txt    # Danh sách thư viện cần thiết
-├── README.md          # Hướng dẫn này
+├── README.md          # Hướng dẫn sử dụng
 └── schedule.db        # File database (tự động tạo khi chạy)
 ```
 
