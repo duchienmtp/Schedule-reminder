@@ -62,8 +62,8 @@ def clean_location(loc):
     
 def fallback_time_location(text: str):
     """
-    Hàm 'Cứu cánh' (Fallback): Nếu mô hình AI (Underthesea) bỏ sót,
-    chúng ta dùng Regex (luật cứng) để quét lại một lần nữa.
+    Hàm Fallback: Nếu mô hình AI (Underthesea) bỏ sót,
+    dùng Regex để quét lại một lần nữa.
     """
     times, locs = [], []
     
@@ -121,7 +121,6 @@ def extract_entities(text: str):
     Chiến thuật: Ưu tiên Underthesea (AI), sau đó dùng Regex bổ sung.
     """
     
-    # --- LOGIC MỚI: Xử lý khoảng thời gian "từ ... đến ..." ---
     # Regex này tìm cấu trúc "từ [A] đến [B]"
     time_range_match = re.search(r'\b(?:từ)\s+(.*?)\s+(?:đến|tới)\s+(.*?)(?=(,|$|\snhắc|\sbáo))', text, re.IGNORECASE)
     if time_range_match:
@@ -129,7 +128,7 @@ def extract_entities(text: str):
         end_time_str = time_range_match.group(2).strip()
 
         # Nếu giờ kết thúc thiếu ngữ cảnh (VD: "từ 9h sáng đến 10h"), 
-        # ta copy ngữ cảnh "sáng" từ giờ bắt đầu sang giờ kết thúc.
+        # ta chỉ lấy ngày từ giờ bắt đầu sang giờ kết thúc.
         time_context_words = ['sáng', 'chiều', 'tối', 'trưa', 'đêm', 'mai', 'nay', 'mốt', 'thứ', 'tuần', 'ngày', '/']
         start_context = [word for word in start_time_str.split() if word in time_context_words]
         end_context = [word for word in end_time_str.split() if word in time_context_words]
@@ -144,7 +143,7 @@ def extract_entities(text: str):
         }
 
     # --- Xử lý thông thường (1 điểm thời gian) ---
-    ner_result = ner(text) # Gọi thư viện AI
+    ner_result = ner(text)
     times, locs = [], []
     for token_data in ner_result:
         if len(token_data) == 4: token, tag, _, _ = token_data

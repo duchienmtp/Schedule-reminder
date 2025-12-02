@@ -6,11 +6,10 @@ import time
 import json
 from datetime import datetime, timedelta, timezone
 
-# Import 2 file của bạn
 import database as db
 from nlp_pipeline import pipeline_, parse_vietnamese_time 
 
-# Đáp ứng yêu cầu 4: Kiểm tra định kỳ (mỗi 60 giây)
+# Kiểm tra định kỳ (mỗi 60 giây)
 REMINDER_CHECK_INTERVAL_SECONDS = 60 
 
 class ScheduleApp:
@@ -25,7 +24,7 @@ class ScheduleApp:
         # Queue để giao tiếp thread-safe với UI
         self.reminder_queue = queue.Queue()
 
-        # --- Giao diện (Đáp ứng Yêu cầu 3) ---
+        # --- Giao diện ---
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -120,7 +119,7 @@ class ScheduleApp:
             return
         
         try:
-            # Gọi pipeline NLP của bạn
+            # Gọi pipeline NLP
             data = pipeline_(prompt)
             
             if data.get('event') and data.get('start_time'):
@@ -174,7 +173,7 @@ class ScheduleApp:
             edit_window.title("Chỉnh sửa sự kiện")
             edit_window.geometry("450x500")
             
-            # Parse current datetime for user-friendly display
+            # Format lại ngày giờ
             try:
                 current_dt = datetime.fromisoformat(current_event['start_time'])
                 current_date = current_dt.strftime('%d/%m/%Y')
@@ -189,16 +188,16 @@ class ScheduleApp:
             except:
                 current_end_time = ""
 
-            # Create form with user-friendly fields
+            # Tạo form chỉnh sửa
             main_frame = ttk.Frame(edit_window, padding="20")
             main_frame.pack(fill=tk.BOTH, expand=True)
             
-            # Event name
+            # Tên sự kiện
             ttk.Label(main_frame, text="Tên sự kiện:", font=('', 9, 'bold')).pack(anchor=tk.W, pady=(0,5))
             event_entry = ttk.Entry(main_frame, width=50)
             event_entry.pack(fill=tk.X, pady=(0,15))
             event_entry.insert(0, current_event['event'])            
-            # Date input with examples
+    
             ttk.Label(main_frame, text="Ngày:", font=('', 9, 'bold')).pack(anchor=tk.W)
             ttk.Label(main_frame, text="Ví dụ: 25/12/2025, hôm nay, ngày mai, thứ 2", 
                      font=('', 8), foreground='gray').pack(anchor=tk.W, pady=(0,5))
@@ -206,7 +205,6 @@ class ScheduleApp:
             date_entry.pack(fill=tk.X, pady=(0,15))
             date_entry.insert(0, current_date)
             
-            # Time input with examples  
             ttk.Label(main_frame, text="Giờ bắt đầu:", font=('', 9, 'bold')).pack(anchor=tk.W)
             ttk.Label(main_frame, text="Ví dụ: 14:30, 2:30 chiều, 9h sáng, 19:00", 
                      font=('', 8), foreground='gray').pack(anchor=tk.W, pady=(0,5))
@@ -214,19 +212,16 @@ class ScheduleApp:
             time_entry.pack(fill=tk.X, pady=(0,15))
             time_entry.insert(0, current_time)
 
-            # End Time input
             ttk.Label(main_frame, text="Giờ kết thúc (tùy chọn):", font=('', 9, 'bold')).pack(anchor=tk.W)
             end_time_entry = ttk.Entry(main_frame, width=50)
             end_time_entry.pack(fill=tk.X, pady=(0,15))
             end_time_entry.insert(0, current_end_time)
             
-            # Location
             ttk.Label(main_frame, text="Địa điểm:", font=('', 9, 'bold')).pack(anchor=tk.W, pady=(0,5))
             location_entry = ttk.Entry(main_frame, width=50)
             location_entry.pack(fill=tk.X, pady=(0,15))
             location_entry.insert(0, current_event['location'] or "")
             
-            # Reminder
             ttk.Label(main_frame, text="Nhắc nhở trước (phút):", font=('', 9, 'bold')).pack(anchor=tk.W, pady=(0,5))
             reminder_entry = ttk.Entry(main_frame, width=50)
             reminder_entry.pack(fill=tk.X, pady=(0,15))
@@ -234,7 +229,6 @@ class ScheduleApp:
             
             def save_changes():
                 try:
-                    # Lấy dữ liệu từ các ô nhập
                     new_event = event_entry.get()
                     new_date = date_entry.get()
                     new_time = time_entry.get()
@@ -246,13 +240,12 @@ class ScheduleApp:
                         messagebox.showwarning("Lỗi", "Tên sự kiện, ngày và giờ không được để trống.", parent=edit_window)
                         return
                         
-                    # Ghép ngày và giờ để parse
                     start_time_str = f"{new_date} {new_time}"
                     start_dt_iso = parse_vietnamese_time(start_time_str)
                     
                     end_dt_iso = None
                     if new_end_time:
-                        # Nếu người dùng chỉ nhập giờ cho end_time, ta lấy ngày từ start_time
+                        # Nếu người dùng chỉ nhập giờ cho end_time thì chỉ lấy ngày từ start_time
                         end_time_str = f"{new_date} {new_end_time}"
                         start_datetime_obj = datetime.fromisoformat(start_dt_iso) if start_dt_iso else datetime.now()
                         end_dt_iso = parse_vietnamese_time(end_time_str, now=start_datetime_obj)
@@ -305,7 +298,6 @@ class ScheduleApp:
             )
             
             if file_path:
-                # Prepare data for export, ensuring all desired fields are present
                 export_data = []
                 for event in events:
                     export_event = {
@@ -400,13 +392,13 @@ class ScheduleApp:
             try:
                 dt_start = datetime.fromisoformat(event['start_time'])
                 
-                # Use end_time if available, otherwise default to start_time + 1 hour
+                # Nếu không có end_time, đặt mặc định là 1 giờ sau start_time
                 if event.get('end_time'):
                     dt_end = datetime.fromisoformat(event['end_time'])
                 else:
                     dt_end = dt_start + timedelta(hours=1)
 
-                # Convert to UTC for ICS standard
+                # Chuyển sang UTC theo chuẩn ICS
                 dt_start_utc = dt_start.astimezone(timezone.utc)
                 dt_end_utc = dt_end.astimezone(timezone.utc)
 
@@ -422,7 +414,7 @@ class ScheduleApp:
                 if event['location']:
                     ics_lines.append(f"LOCATION:{event['location']}")
                 
-                # Add reminder (VALARM)
+                # Thêm nhắc nhở (VALARM)
                 if event['reminder_minutes'] and event['reminder_minutes'] > 0:
                     ics_lines.append("BEGIN:VALARM")
                     ics_lines.append("ACTION:DISPLAY")
@@ -458,10 +450,10 @@ class ScheduleApp:
                 dt_str = dt_start.strftime('%d/%m %H:%M')
                 if event.get('end_time'):
                     dt_end = datetime.fromisoformat(event['end_time'])
-                    # If end time is on the same day, just show the time
+                    # Nếu cùng ngày thì chỉ hiện giờ kết thúc
                     if dt_start.date() == dt_end.date():
                         dt_str += f" - {dt_end.strftime('%H:%M')}"
-                    else: # Otherwise, show full end date and time
+                    else: # Khác ngày thì hiện cả ngày tháng
                         dt_str += f" - {dt_end.strftime('%d/%m %H:%M')}"
             except:
                 dt_str = event['start_time'] # Fallback
@@ -533,7 +525,7 @@ class ScheduleApp:
         """Xử lý khi thay đổi chế độ hiển thị."""
         self.load_events_to_listbox()
 
-    # --- HỆ THỐNG NHẮC NHỞ (Mục 4) ---
+    # --- HỆ THỐNG NHẮC NHỞ ---
     
     def start_reminder_thread(self):
         """Khởi chạy luồng kiểm tra nhắc nhở."""
